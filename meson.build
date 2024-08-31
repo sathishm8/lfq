@@ -1,0 +1,5 @@
+project('lfq', 'cpp', version : '0.1')
+thread_dep = dependency('threads')
+add_project_arguments(['-lpthread'], language : 'cpp')
+add_project_arguments(['-lstdc++fs'], language : 'cpp')
+executable('spscs-test', 'spscs-test.cpp', 'spscs.h', dependencies : [thread_dep])
