@@ -65,13 +65,17 @@ bool ringBuf<TT, n>::dequeue(TT* o)
 
 typedef std::chrono::high_resolution_clock Clock;
 
+typedef int* Obj_P;
+typedef int Obj_T;
+
 int main(int argc, char* argv[])
 {
-	ringBuf<int*, 1024> r;
+	ringBuf<Obj_P, 1024> r;
 	thread t[2];
-	int d1 = 1, *p;
+	Obj_T d = 1;
+	Obj_P p;
 
-	auto pwork = [&r](int *addr, int n) {
+	auto pwork = [&r](Obj_P addr, int n) {
 		int k = 0;
 		auto start_time = Clock::now();
 		do {
@@ -81,12 +85,12 @@ int main(int argc, char* argv[])
 				k++;
 		} while (k < n);
 		auto end_time = Clock::now();
-		cout << "Producer work cycles = " << k << " " << *addr << endl;
+		cout << "Producer work cycles = " << k << " " << addr << endl;
 	    cout << "Queue Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time    - start_time).count() << " ms" << std::endl;
 		std::this_thread::sleep_for(20ms);
 	};
 
-	auto cwork = [&r](int **p, int n) {
+	auto cwork = [&r](Obj_P *p, int n) {
 		int k = 0;
 		auto start_time = Clock::now();
 		do {
@@ -97,11 +101,11 @@ int main(int argc, char* argv[])
 		} while (k < n);
 		auto end_time = Clock::now();
 		std::this_thread::sleep_for(20ms);
-		cout << "Consumer work cycles = " << k << " " << **p << endl;
+		cout << "Consumer work cycles = " << k << " " << *p << endl;
 	    cout << "Dequeue Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(end_time    - start_time).count() << " ms" << std::endl;
 	};
 
-	t[0] = std::thread(pwork, &d1, 10*1000*1000);
+	t[0] = std::thread(pwork, &d, 10*1000*1000);
 	t[1] = std::thread(cwork, &p, 10*1000*1000);
 	t[0].join();
 	t[1].join();
